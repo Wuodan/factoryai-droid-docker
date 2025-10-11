@@ -1,1 +1,9 @@
 /.idea/
+**/.factory
+
+# contains API key
+.env
+# contains API key
+**/.factory/settings.json
+# contains API key
+.env

@@ -1,0 +1,27 @@
+# Dockerfile.final — assemble the runtime image using artifacts from other images
+FROM debian:bookworm-slim
+
+# Minimal runtime deps (ripgrep from Debian repos for provenance)
+RUN set -eu && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates ripgrep && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+ARG USERNAME=appuser
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN groupadd --gid ${USER_GID} ${USERNAME} && \
+    useradd  --uid ${USER_UID} --gid ${USER_GID} -m -s /bin/bash ${USERNAME}
+
+# Copy artifacts from the named build context "fetch"
+# (Provided by buildx bake via build-contexts/contexts mapping)
+COPY --from=fetch /out/droid /usr/local/bin/droid
+COPY --from=fetch /out/rg    /usr/local/bin/rg
+# RUN chmod +x /usr/local/bin/droid /usr/local/bin/rg
+
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}
+
+# Default to the interactive CLI; require -it
+CMD ["droid"]
