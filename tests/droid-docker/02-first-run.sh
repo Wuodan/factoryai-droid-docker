@@ -5,18 +5,14 @@
 
 # set -euo pipefail  # Temporarily disabled to allow Docker startup issues
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 echo "=== Test 02: First Run Scenario ==="
 
-# Get the real API key from project's .env file
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-REAL_API_KEY=$(grep FACTORY_API_KEY "$SCRIPT_DIR/../../.env" | cut -d'=' -f2 | tr -d "'")
+# Use dummy API key (any non-empty string works)
+DUMMY_API_KEY="dummy-api-key-12345"
 
-if [ -z "$REAL_API_KEY" ]; then
-    echo "❌ Could not find FACTORY_API_KEY in $SCRIPT_DIR/../../.env"
-    exit 1
-fi
-
-echo "Found API key from project .env file"
+echo "Using dummy API key for testing"
 
 # Create test directory in /tmp and cd to it
 TEST_DIR="/tmp/droid-docker-test"
@@ -34,7 +30,7 @@ fi
 
 echo "✅ Confirmed clean starting state"
 
-# Use SCRIPT_DIR to get path to droid-docker script
+# Get script directory and path to droid-docker script
 DROID_DOCKER="$SCRIPT_DIR/../../droid-docker"
 
 # Run the script with timeout and pseudo-TTY (from the test directory)
@@ -42,7 +38,7 @@ echo "Running droid-docker script from test directory..."
 cd "$TEST_DIR"
 
 # Run script and let it start Docker container
-timeout -k 3s 10s script -qfec "$DROID_DOCKER" output.log <<<"$REAL_API_KEY"
+timeout -k 3s 10s script -qfec "$DROID_DOCKER" output.log <<<"$DUMMY_API_KEY"
 
 # Check the exit code - timeout is expected since Docker runs interactively
 if [ $? -eq 124 ]; then

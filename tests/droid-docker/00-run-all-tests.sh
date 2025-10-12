@@ -5,13 +5,15 @@
 
 set -euo pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 echo "=== Droid-Docker Test Suite ==="
 echo "Running complete test suite..."
 echo
 
 # Run all tests in sequence
 echo "1. Running cleanup..."
-if ./01-cleanup.sh; then
+if "$SCRIPT_DIR/01-cleanup.sh"; then
     echo "   ✅ Cleanup passed"
 else
     echo "   ❌ Cleanup failed"
@@ -19,7 +21,7 @@ else
 fi
 
 echo "2. Running first run test..."
-if ./02-first-run.sh; then
+if "$SCRIPT_DIR/02-first-run.sh"; then
     echo "   ✅ First run test passed"
 else
     echo "   ❌ First run test failed"
@@ -27,7 +29,7 @@ else
 fi
 
 echo "3. Running consecutive run test..."
-if ./03-subsequent-run.sh; then
+if "$SCRIPT_DIR/03-subsequent-run.sh"; then
     echo "   ✅ Consecutive run test passed"
 else
     echo "   ❌ Consecutive run test failed"
@@ -35,7 +37,7 @@ else
 fi
 
 echo "4. Running structure verification..."
-if ./04-verify-structure.sh; then
+if "$SCRIPT_DIR/04-verify-structure.sh"; then
     echo "   ✅ Structure verification passed"
 else
     echo "   ❌ Structure verification failed"
