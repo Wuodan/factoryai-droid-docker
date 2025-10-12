@@ -2,29 +2,40 @@
 
 ## Build
 
-### One-time only: Switch to `multiarch` builder
-```commandline
+### Normal Build
+
+```shell
+docker build -t factoryai-droid:latest .
+```
+
+### Multi-Arch Build
+
+#### One-time only setup: Switch to `multiarch` builder
+
+```shell
 docker buildx create --name multiarch --driver docker-container --use
 docker buildx inspect --bootstrap
 ```
+
 Verify with
-```commandline
+```shell
 docker buildx ls
 ```
 The `multiarch` builder must be marked with `*`
 
-> To remove `multiarch` builder and switch to default builder run:<br/>
-> `docker buildx rm multiarch`<br/>
-> but why would anyone want to do that :-)
+> To switch back to default builder and remove `multiarch` builder run:<br/>
+> ```shell
+> docker buildx rm multiarch
+> ```
 
-### Build and import locally
+#### Build and load locally
 
-```commandline
-docker buildx bake -f docker-bake.hcl --load
+```shell
+docker buildx build -t factoryai-droid:latest --load .
 ```
 
 ### Build multi-arch locally
 
-```commandline
-docker buildx bake --set '*.platform=linux/amd64,linux/arm64'
+```shell
+docker buildx build --platform linux/amd64,linux/arm64 -t factoryai-droid:latest . 
 ```

@@ -1,4 +1,4 @@
-name: Build and Push  Multi-Arch Images
+name: Build and Push Multi-Arch Images
 
 on:
   push:
@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ${{ vars.DOCKERHUB_USERNAME }}/factoryai-droid
 
 jobs:
-  docker-bake-multiarch:
+  docker-build-multiarch:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,21 +41,20 @@ jobs:
       - name: Stamp build date (UTC)
         run: echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
-      - name: Bake (multi-arch, multi-target)
-        uses: docker/bake-action@v6
+      - name: Build & push (multi-arch)
+        uses: docker/build-push-action@v6
         with:
-          targets: final
-          files: |
-            ./docker-bake.hcl
-          set: |
-            *.platform=linux/arm64
-            *.tags=${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}
-            *.tags=${{ env.IMAGE_NAME }}:latest
-            fetch.args.DROID_VERSION=${{ env.DROID_VERSION }}
-            final.labels.org.opencontainers.image.created=${{ env.BUILD_DATE }}
-            final.labels.org.opencontainers.image.revision=${{ github.sha }}
-            final.labels.org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            final.labels.org.opencontainers.image.version=${{ env.DROID_VERSION }}
+          platforms: linux/amd64,linux/arm64
           push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}
+            ${{ env.IMAGE_NAME }}:latest
+          build-args: |
+            DROID_VERSION=${{ env.DROID_VERSION }}
+          labels: |
+            org.opencontainers.image.created=${{ env.BUILD_DATE }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.DROID_VERSION }}
           provenance: true
           sbom: true
