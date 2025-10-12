@@ -1,22 +1,22 @@
-name: On New Release
+name: On New Tag
 
 on:
-  release:
-    types: [published]
+  push:
+    tags: ['*']
 
 permissions:
   contents: read
 
 jobs:
-  react-to-release:
+  react-to-tag:
     runs-on: ubuntu-latest
     env:
-      RELEASE_NAME: ${{ github.event.release.name }}
-      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      TAG_NAME: ${{ github.event.tag.name }}
+      TAG_TAG: ${{ github.event.tag.tag_name }}
 
     steps:
-      - name: Print release info
+      - name: Print tag info
         run: |
-          echo "🚀 New release detected!"
-          echo "RELEASE_NAME=${RELEASE_NAME}"
-          echo "RELEASE_TAG=${RELEASE_TAG}"
+          echo "🚀 New tag detected!"
+          echo "TAG_NAME=${TAG_NAME}"
+          echo "TAG_TAG=${TAG_TAG}"
