@@ -7,14 +7,21 @@ set -euo pipefail
 
 echo "=== Test 04: Verify Structure ==="
 
-# First verify that the test directory is empty (should not contain any files)
+# First verify that the test directory exists and clean up output files
 TEST_DIR="/tmp/droid-docker-test"
 if [ -d "$TEST_DIR" ]; then
-    FILE_COUNT=$(find "$TEST_DIR" -type f | wc -l)
-    if [ "$FILE_COUNT" -eq 0 ]; then
-        echo "✅ Test directory is empty as expected"
+    echo "✅ Test directory exists"
+
+    # Remove output files (these are expected from tests)
+    rm -f "$TEST_DIR"/output*.log
+    echo "✅ Cleaned up test output files"
+
+    # Check that no unexpected files remain
+    UNEXPECTED_FILES=$(find "$TEST_DIR" -type f | wc -l)
+    if [ "$UNEXPECTED_FILES" -eq 0 ]; then
+        echo "✅ Test directory is clean (no unexpected files)"
     else
-        echo "❌ Test directory should be empty but contains $FILE_COUNT files"
+        echo "❌ Test directory contains $UNEXPECTED_FILES unexpected files"
         find "$TEST_DIR" -type f
         exit 1
     fi
@@ -44,8 +51,8 @@ if [ -f "$ENV_FILE" ]; then
     echo "   Content:"
     cat "$ENV_FILE"
 
-    # Verify it contains FACTORY_API_KEY with non-blank value (using + instead of *)
-    if grep -q "FACTORY_API_KEY='[^']+'" "$ENV_FILE"; then
+    # Verify it contains FACTORY_API_KEY with non-blank value
+    if grep -Eq "FACTORY_API_KEY='[^']+'" "$ENV_FILE"; then
         echo "   ✅ Contains FACTORY_API_KEY with non-blank value"
     else
         echo "   ❌ Missing FACTORY_API_KEY or has blank value"
