@@ -42,7 +42,7 @@ echo "Running droid-docker script from test directory..."
 cd "$TEST_DIR"
 
 # Run script and let it start Docker container
-timeout -k 3s 10s script -qec "$DROID_DOCKER" /dev/null <<<"$REAL_API_KEY" > output.log 2>&1
+timeout -k 3s 10s script -qfec "$DROID_DOCKER" output.log <<<"$REAL_API_KEY"
 
 # Check the exit code - timeout is expected since Docker runs interactively
 if [ $? -eq 124 ]; then

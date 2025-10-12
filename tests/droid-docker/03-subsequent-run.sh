@@ -36,7 +36,7 @@ echo "✅ Confirmed APP_CACHE structure exists from previous test"
 
 # Run the script again - should NOT prompt for API key
 echo "Running droid-docker script again (should use existing .env)..."
-timeout -k 3s 10s script -qec "$DROID_DOCKER" /dev/null > output2.log 2>&1
+timeout -k 3s 10s script -qfec "$DROID_DOCKER" output2.log </dev/null
 
 # Check the exit code - timeout is expected since Docker runs interactively
 if [ $? -eq 124 ]; then
