@@ -36,6 +36,7 @@ jobs:
       - name: Bake (multi-arch, multi-target)
         uses: docker/bake-action@v6
         with:
+          targets: final
           files: |
             ./docker-bake.hcl
           set: |
