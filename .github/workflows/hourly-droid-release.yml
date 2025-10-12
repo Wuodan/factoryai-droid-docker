@@ -1,0 +1,50 @@
+name: Periodic Droid Release Sync
+
+on:
+  schedule:
+    # Run hourly (every full hour UTC)
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch installer and extract DROID_VERSION
+        id: version
+        run: |
+          set -euo pipefail
+          curl -fsSL https://app.factory.ai/cli -o droid_installer.sh
+          DROID_VERSION="$(grep -E '^VER=\"[^\"]+\"' droid_installer.sh | sed -E 's/^VER=\"([^\"]+)\".*/\1/')"
+          echo "DROID_VERSION=${DROID_VERSION}"
+          echo "DROID_VERSION=${DROID_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Check existing releases
+        id: check
+        run: |
+          set -euo pipefail
+          API_URL="https://api.github.com/repos/Wuodan/factoryai-droid-docker/releases?per_page=100"
+          if curl -fsSL "$API_URL" | grep -q "\"tag_name\": \"${DROID_VERSION}\""; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Release ${DROID_VERSION} already exists."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "🚀 No release found for ${DROID_VERSION}."
+          fi
+
+      - name: Create GitHub release
+        if: steps.check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.DROID_VERSION }}
+          name: ${{ env.DROID_VERSION }}
+          body: |
+            Automated release for FactoryAI Droid CLI ${{ env.DROID_VERSION }}.
+            Source: https://app.factory.ai/cli
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

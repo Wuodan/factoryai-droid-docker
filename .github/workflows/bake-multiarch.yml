@@ -1,4 +1,4 @@
-name: docker-bake-multiarch
+name: Build and Push  Multi-Arch Images
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
           files: |
             ./docker-bake.hcl
           set: |
-            *.platform=linux/amd64,linux/arm64
+            *.platform=linux/arm64
             *.tags=${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}
             *.tags=${{ env.IMAGE_NAME }}:latest
             fetch.args.DROID_VERSION=${{ env.DROID_VERSION }}
@@ -48,6 +48,7 @@ jobs:
             final.labels.org.opencontainers.image.revision=${{ github.sha }}
             final.labels.org.opencontainers.image.source=https://github.com/${{ github.repository }}
             final.labels.org.opencontainers.image.version=${{ env.DROID_VERSION }}
+            # *.platform=linux/amd64,linux/arm64
           push: true
           provenance: true
           sbom: true
