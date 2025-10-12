@@ -1,50 +1,54 @@
-name: Droid Release Sync
+name: Tag default-branch HEAD if missing
 
 on:
   schedule:
-    # Run hourly (every full hour UTC)
-    - cron: "0 * * * *"
-  workflow_dispatch: {}
+    - cron: "0 6 * * *"   # adjust as needed
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write  # needed to push tags
+
+env:
+  # Provide DROID_VERSION via Repo → Settings → Variables, or as env in a caller.
+  DROID_VERSION: ${{ vars.DROID_VERSION || env.DROID_VERSION }}
 
 jobs:
-  sync:
+  tag:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Fetch Droid installer and extract DROID_VERSION
-        id: version
+      - name: Assert DROID_VERSION provided
         run: |
-          set -euo pipefail
-          curl -fsSL https://app.factory.ai/cli -o droid_installer.sh
-          DROID_VERSION="$(grep -E '^VER=\"[^\"]+\"' droid_installer.sh | sed -E 's/^VER=\"([^\"]+)\".*/\1/')"
+          if [ -z "${DROID_VERSION}" ]; then
+            echo "❌ DROID_VERSION is not set."
+            exit 1
+          fi
           echo "DROID_VERSION=${DROID_VERSION}"
-          echo "DROID_VERSION=${DROID_VERSION}" >> "$GITHUB_ENV"
 
-      - name: Check existing releases
-        id: check
+      - name: Checkout with full history
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # Workaround for https://github.com/actions/checkout/issues/1781 causing tags to be missing
+      - name: Ensure tags are available
+        run: git fetch --tags --force
+
+      - name: Check if tag DROID_VERSION exists
+        id: check_tag
         run: |
-          set -euo pipefail
-          API_URL="https://api.github.com/repos/Wuodan/factoryai-droid-docker/releases?per_page=100"
-          if curl -fsSL "$API_URL" | grep -q "\"tag_name\": \"${DROID_VERSION}\""; then
+          if git rev-parse -q --verify "refs/tags/${DROID_VERSION}" >/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "✅ Release ${DROID_VERSION} already exists."
+            echo "✅ Tag '${DROID_VERSION}' already exists."
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "🚀 No release found for ${DROID_VERSION}."
+            echo "⚙️ Tag '${DROID_VERSION}' does not yet exist..."
           fi
 
-      - name: Create GitHub release
-        if: steps.check.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.DROID_VERSION }}
-          name: ${{ env.DROID_VERSION }}
-          body: |
-            Automated release for FactoryAI Droid CLI ${{ env.DROID_VERSION }}.
-            Source: https://app.factory.ai/cli
-          generate_release_notes: true
+      - name: Create & push tag DROID_VERSION if missing
+        if: steps.check_tag.outputs.exists == 'false'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTH_TOKEN: ${{ secrets.PAT_FACTORYAI_DROID_DOCKER }}
+        run: |
+          git tag "${DROID_VERSION}"
+          git push origin "refs/tags/${DROID_VERSION}"
+          echo "✅ Created and pushed tag '${DROID_VERSION}'."
