@@ -23,10 +23,11 @@ jobs:
           echo "DROID_VERSION=${DROID_VERSION}"
           echo "DROID_VERSION=${DROID_VERSION}" >> "$GITHUB_ENV"
 
-      - name: Checkout with full history
+      - name: Checkout with full history using PAT
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT_FACTORYAI_DROID_DOCKER }}
 
       # Workaround for https://github.com/actions/checkout/issues/1781 causing tags to be missing
       - name: Ensure tags are available

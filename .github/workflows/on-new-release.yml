@@ -11,12 +11,12 @@ jobs:
   react-to-tag:
     runs-on: ubuntu-latest
     env:
-      TAG_NAME: ${{ github.event.tag.name }}
-      TAG_TAG: ${{ github.event.tag.tag_name }}
+      TAG_NAME: ${{ github.ref_name }}
+      REF: ${{ github.ref }}
 
     steps:
       - name: Print tag info
         run: |
           echo "🚀 New tag detected!"
           echo "TAG_NAME=${TAG_NAME}"
-          echo "TAG_TAG=${TAG_TAG}"
+          echo "REF=${REF}"
