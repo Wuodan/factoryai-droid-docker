@@ -6,10 +6,11 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/factoryai-droid
+  DROID_VERSION: 0.19.8
+  IMAGE_NAME: ${{ vars.DOCKERHUB_USERNAME }}/factoryai-droid
 
 jobs:
-  bake:
+  docker-bake-multiarch:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -26,8 +27,11 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Stamp build date (UTC)
+        run: echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
       - name: Bake (multi-arch, multi-target)
         uses: docker/bake-action@v6
@@ -35,9 +39,14 @@ jobs:
           files: |
             ./docker-bake.hcl
           set: |
-            IMAGE_NAME=${{ env.IMAGE_NAME }}
-            *.labels.org.opencontainers.image.revision=${{ github.sha }}
             *.platform=linux/amd64,linux/arm64
+            *.tags=${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}
+            *.tags=${{ env.IMAGE_NAME }}:latest
+            fetch.args.DROID_VERSION=${{ env.DROID_VERSION }}
+            final.labels.org.opencontainers.image.created=${{ env.BUILD_DATE }}
+            final.labels.org.opencontainers.image.revision=${{ github.sha }}
+            final.labels.org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            final.labels.org.opencontainers.image.version=${{ env.DROID_VERSION }}
           push: true
           provenance: true
           sbom: true
