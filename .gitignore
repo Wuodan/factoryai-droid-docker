@@ -5,5 +5,5 @@
 .env
 # contains API key
 **/.factory/settings.json
-# contains API key
-.env
+# can contain API keys
+**/.factory/mcp.json
