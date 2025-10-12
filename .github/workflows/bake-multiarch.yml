@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  DROID_VERSION: 0.19.8
   IMAGE_NAME: ${{ vars.DOCKERHUB_USERNAME }}/factoryai-droid
 
 jobs:
@@ -15,6 +14,15 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Fetch Droid installer and extract DROID_VERSION
+        id: version
+        run: |
+          set -euo pipefail
+          curl -fsSL https://app.factory.ai/cli -o droid_installer.sh
+          DROID_VERSION="$(grep -E '^VER=\"[^\"]+\"' droid_installer.sh | sed -E 's/^VER=\"([^\"]+)\".*/\1/')"
+          echo "DROID_VERSION=${DROID_VERSION}"
+          echo "DROID_VERSION=${DROID_VERSION}" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v5
 
       - name: Set up QEMU (for ARM emulation)
@@ -48,7 +56,6 @@ jobs:
             final.labels.org.opencontainers.image.revision=${{ github.sha }}
             final.labels.org.opencontainers.image.source=https://github.com/${{ github.repository }}
             final.labels.org.opencontainers.image.version=${{ env.DROID_VERSION }}
-            # *.platform=linux/amd64,linux/arm64
           push: true
           provenance: true
           sbom: true

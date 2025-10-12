@@ -1,5 +1,5 @@
 # Dockerfile.final — assemble the runtime image using artifacts from other images
-FROM debian:bookworm-slim
+FROM --platform=$TARGETPLATFORM debian:bookworm-slim
 
 # Minimal runtime deps (ripgrep from Debian repos for provenance)
 RUN set -eu && \
@@ -18,7 +18,6 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} && \
 # (Provided by buildx bake via build-contexts/contexts mapping)
 COPY --from=fetch /out/droid /usr/local/bin/droid
 COPY --from=fetch /out/rg    /usr/local/bin/rg
-# RUN chmod +x /usr/local/bin/droid /usr/local/bin/rg
 
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}

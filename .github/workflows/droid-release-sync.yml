@@ -1,4 +1,4 @@
-name: Periodic Droid Release Sync
+name: Droid Release Sync
 
 on:
   schedule:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Fetch installer and extract DROID_VERSION
+      - name: Fetch Droid installer and extract DROID_VERSION
         id: version
         run: |
           set -euo pipefail
