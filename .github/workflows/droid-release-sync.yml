@@ -1,9 +1,8 @@
-name: Droid Release Sync
+name: Droid Release Sync (scheduled)
 
 on:
   schedule:
-    # Run hourly (every full hour UTC)
-    - cron: "0 * * * *"
+    - cron: "0 */4 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -44,10 +43,8 @@ jobs:
             echo "⚙️ Tag '${DROID_VERSION}' does not yet exist..."
           fi
 
-      - name: Create & push tag DROID_VERSION if missing
+      - name: Create & push tag DROID_VERSION if missing (uses PAT from checkout)
         if: steps.check_tag.outputs.exists == 'false'
-        env:
-          GIT_AUTH_TOKEN: ${{ secrets.PAT_FACTORYAI_DROID_DOCKER }}
         run: |
           git tag "${DROID_VERSION}"
           git push origin "refs/tags/${DROID_VERSION}"
