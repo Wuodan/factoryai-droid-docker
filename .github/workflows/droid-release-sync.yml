@@ -1,28 +1,27 @@
-name: Tag default-branch HEAD if missing
+name: Droid Release Sync
 
 on:
   schedule:
-    - cron: "0 6 * * *"   # adjust as needed
-  workflow_dispatch:
+    # Run hourly (every full hour UTC)
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
 
 permissions:
-  contents: write  # needed to push tags
-
-env:
-  # Provide DROID_VERSION via Repo → Settings → Variables, or as env in a caller.
-  DROID_VERSION: ${{ vars.DROID_VERSION || env.DROID_VERSION }}
+  contents: write
 
 jobs:
-  tag:
+  sync:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Assert DROID_VERSION provided
+      - name: Fetch Droid installer and extract DROID_VERSION
+        id: version
         run: |
-          if [ -z "${DROID_VERSION}" ]; then
-            echo "❌ DROID_VERSION is not set."
-            exit 1
-          fi
+          set -euo pipefail
+          curl -fsSL https://app.factory.ai/cli -o droid_installer.sh
+          DROID_VERSION="$(grep -E '^VER=\"[^\"]+\"' droid_installer.sh | sed -E 's/^VER=\"([^\"]+)\".*/\1/')"
           echo "DROID_VERSION=${DROID_VERSION}"
+          echo "DROID_VERSION=${DROID_VERSION}" >> "$GITHUB_ENV"
 
       - name: Checkout with full history
         uses: actions/checkout@v5
