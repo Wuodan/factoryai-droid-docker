@@ -1,41 +1,54 @@
-# factory-droid-docker
+# FactoryAI Droid Docker
 
-## Build
+Isolated AI Development Environment
 
-### Normal Build
+---
 
-```shell
-docker build -t factoryai-droid:latest .
+Run FactoryAI Droid in Docker with persistent configuration and host isolation.
+
+## What is FactoryAI Droid?
+
+FactoryAI Droid is an AI-powered development agent that automates software
+development workflows. Learn more at [factory.ai](https://factory.ai/).
+
+## Usage
+
+### Direct Docker Run
+
+```bash
+# Set your API key
+export FACTORY_API_KEY="your-api-key-here"
+
+# Run from your project directory
+docker run --rm -it \
+  -v "$(pwd)":/home/appuser/work \
+  -e FACTORY_API_KEY="$FACTORY_API_KEY" \
+  wuodan/factoryai-droid:latest
 ```
 
-### Multi-Arch Build
+### droid-docker command
 
-#### One-time only setup: Switch to `multiarch` builder
+For per-project persistence and easier API key management:
 
-```shell
-docker buildx create --name multiarch --driver docker-container --use
-docker buildx inspect --bootstrap
+```bash
+# Install droid-docker globally
+curl -o /tmp/droid-docker https://raw.githubusercontent.com/Wuodan/factoryai-droid-docker/main/droid-docker
+sudo mv /tmp/droid-docker /usr/local/bin/
+sudo chmod +x /usr/local/bin/droid-docker
+
+# Run from your project directory
+droid-docker
+
+# Execute commands
+droid-docker exec "analyze codebase"
 ```
 
-Verify with
-```shell
-docker buildx ls
-```
-The `multiarch` builder must be marked with `*`
+## Configuration
 
-> To switch back to default builder and remove `multiarch` builder run:<br/>
-> ```shell
-> docker buildx rm multiarch
-> ```
+Per-project configuration persists in `~/.factoryai-droid-docker/{project-path}/.factory/`.
 
-#### Build and load locally
+See [droid-docker.md](droid-docker.md) for detailed usage.
 
-```shell
-docker buildx build -t factoryai-droid:latest --load .
-```
+## Building
 
-### Build multi-arch locally
-
-```shell
-docker buildx build --platform linux/amd64,linux/arm64 -t factoryai-droid:latest . 
-```
+See [BUILDING.md](BUILDING.md) for build instructions.
