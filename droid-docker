@@ -12,6 +12,16 @@ IMAGE="wuodan/factoryai-droid"
 # Always use current working directory
 CUR_PATH="$(pwd)"
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Prevent running from the script's own directory
+if [ "$CUR_PATH" = "$SCRIPT_DIR" ]; then
+  echo "Error: Do not run droid-docker from its own directory." >&2
+  echo "Call it from your project folder instead: /path/to/your/project/droid-docker" >&2
+  exit 1
+fi
+
 # Set APP_CACHE to user home with project path
 APP_CACHE="${HOME}/.factoryai-droid-docker/${CUR_PATH}"
 
