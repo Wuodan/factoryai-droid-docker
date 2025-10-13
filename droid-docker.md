@@ -33,6 +33,8 @@ First run prompts for FactoryAI API key (hidden input) and stores in
 
 Configuration cache stored at: `~/.factoryai-droid-docker/{project-path}/.factory/`
 
+This includes MCP server configurations which persist across container restarts.
+
 ## Docker Setup
 
 Runs `wuodan/factoryai-droid` image with:
