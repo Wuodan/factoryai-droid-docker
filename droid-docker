@@ -3,23 +3,14 @@
 # Usage:
 #   ./droid-docker                 # interactive TUI
 #   ./droid-docker exec --output-format json "list files"  # headless exec
-#   ./droid-docker /path/to/project # use specific project path
+# Note: Always uses the current working directory where the script is called from
 
 set -euo pipefail
 
 IMAGE="wuodan/factoryai-droid"
 
-# Get CUR_PATH - use provided path or current directory
-CUR_PATH="${1:-$(pwd)}"
-
-# Validate that CUR_PATH exists and is a directory
-if [ ! -d "$CUR_PATH" ]; then
-  echo "Error: '$CUR_PATH' is not a valid directory" >&2
-  exit 1
-fi
-
-# Get absolute path for CUR_PATH
-CUR_PATH="$(cd "$CUR_PATH" && pwd)"
+# Always use current working directory
+CUR_PATH="$(pwd)"
 
 # Set APP_CACHE to user home with project path
 APP_CACHE="${HOME}/.factoryai-droid-docker/${CUR_PATH}"
