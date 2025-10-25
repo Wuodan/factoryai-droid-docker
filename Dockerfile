@@ -30,7 +30,7 @@ RUN curl -fsSL https://app.factory.ai/cli | sh && \
     /home/${USERNAME}/.local/bin/droid --version && \
     mkdir /home/${USERNAME}/work
 
-ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
+ENV PATH="/home/${USERNAME}/.local/bin:/home/${USERNAME}/.factory/bin:${PATH}"
 
 WORKDIR /home/${USERNAME}/work
 
