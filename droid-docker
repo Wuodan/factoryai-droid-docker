@@ -76,4 +76,5 @@ exec docker run --rm -it --init \
   -v "$APP_CACHE/.factory:/home/appuser/.factory" \
   -v "${CUR_PATH}:/home/appuser/work" \
   -e "FACTORY_API_KEY=${FACTORY_API_KEY}" \
+  --network=host \
   "${IMAGE}" "$@"
