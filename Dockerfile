@@ -12,6 +12,7 @@ RUN apt-get update && \
       ca-certificates \
       curl \
       gosu \
+      wget \
     && \
     rm -rf /var/lib/apt/lists/* && \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
