@@ -46,16 +46,18 @@ jobs:
       - name: Stamp build date (UTC)
         run: echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
-      - name: Build & push (multi-arch full)
+      # Build and push: Python latest and latest-slim
+
+      - name: Build & push (multi-arch python_latest-slim)
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}
-            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}-python_latest-slim
+            ${{ env.IMAGE_NAME }}:python_latest-slim
           build-args: |
-            BASE_IMAGE=python:latest
+            BASE_IMAGE=python:slim
             DROID_VERSION=${{ env.DROID_VERSION }}
           labels: |
             org.opencontainers.image.created=${{ env.BUILD_DATE }}
@@ -65,17 +67,61 @@ jobs:
           provenance: true
           sbom: true
 
-      - name: Build & push (multi-arch slim)
+      - name: Build & push (multi-arch python_latest)
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}-python_latest
+            ${{ env.IMAGE_NAME }}:python_latest
+          build-args: |
+            BASE_IMAGE=python:latest
+            DROID_VERSION=${{ env.DROID_VERSION }}
+            OS_EXTRA_INSTALLs="build-essential cmake pkg-config python3-dev libgl1 libglib2.0-0 libjpeg-dev libpng-dev imagemagick"
+          labels: |
+            org.opencontainers.image.created=${{ env.BUILD_DATE }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.DROID_VERSION }}
+          provenance: true
+          sbom: true
+
+      # Build and push: Python 3.11 and 3.11-slim
+
+      - name: Build & push (multi-arch python_3.11-slim slim)
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}-slim
+            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}-python_3.11-slim
             ${{ env.IMAGE_NAME }}:slim
           build-args: |
-            BASE_IMAGE=python:slim
+            BASE_IMAGE=python:3.11-slim
             DROID_VERSION=${{ env.DROID_VERSION }}
+          labels: |
+            org.opencontainers.image.created=${{ env.BUILD_DATE }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.DROID_VERSION }}
+          provenance: true
+          sbom: true
+
+      - name: Build & push (multi-arch python_3.11 latest)
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}
+            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}-python_3.11
+            ${{ env.IMAGE_NAME }}:latest
+          build-args: |
+            BASE_IMAGE=python:3.11
+            DROID_VERSION=${{ env.DROID_VERSION }}
+            OS_EXTRA_INSTALLs="build-essential cmake pkg-config python3-dev libgl1 libglib2.0-0 libjpeg-dev libpng-dev imagemagick"
           labels: |
             org.opencontainers.image.created=${{ env.BUILD_DATE }}
             org.opencontainers.image.revision=${{ github.sha }}

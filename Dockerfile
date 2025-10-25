@@ -1,4 +1,6 @@
 ARG BASE_IMAGE=python:latest
+ARG OS_EXTRA_INSTALLs=""
+
 FROM ${BASE_IMAGE}
 
 # Create non-root user
@@ -12,6 +14,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
+      ${OS_EXTRA_INSTALLs} \
       gosu \
       wget \
     && \
