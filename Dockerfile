@@ -1,4 +1,5 @@
-FROM python:slim
+ARG BASE_IMAGE=python:latest
+FROM ${BASE_IMAGE}
 
 # Create non-root user
 ARG USERNAME=appuser

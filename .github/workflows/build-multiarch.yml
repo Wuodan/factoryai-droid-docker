@@ -46,7 +46,7 @@ jobs:
       - name: Stamp build date (UTC)
         run: echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
-      - name: Build & push (multi-arch)
+      - name: Build & push (multi-arch full)
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
@@ -55,6 +55,26 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}
             ${{ env.IMAGE_NAME }}:latest
           build-args: |
+            BASE_IMAGE=python:latest
+            DROID_VERSION=${{ env.DROID_VERSION }}
+          labels: |
+            org.opencontainers.image.created=${{ env.BUILD_DATE }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.DROID_VERSION }}
+          provenance: true
+          sbom: true
+
+      - name: Build & push (multi-arch slim)
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.DROID_VERSION }}-slim
+            ${{ env.IMAGE_NAME }}:slim
+          build-args: |
+            BASE_IMAGE=python:slim
             DROID_VERSION=${{ env.DROID_VERSION }}
           labels: |
             org.opencontainers.image.created=${{ env.BUILD_DATE }}
