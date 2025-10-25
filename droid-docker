@@ -9,8 +9,8 @@ set -euo pipefail
 
 IMAGE="wuodan/factoryai-droid"
 
-# Always use current working directory
-CUR_PATH="$(pwd)"
+# Always use absolute path of current working directory
+CUR_PATH="$(pwd -P)"
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
